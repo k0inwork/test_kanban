@@ -1,41 +1,30 @@
 
-name: Count Lines
+name: Clone and Count Lines
 on: workflow_dispatch
 jobs:
-  count:
+  clone-and-count:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           repository: k0inwork/test
-          fetch-depth: 0
-
+          token: \${{ secrets.GITHUB_TOKEN }}
       - name: Count all lines
         run: |
-          echo "=== Total Line Count ==="
-          find . -type f -not -path './.git/*' -exec cat {} + | wc -l
-          echo "=== Total Line Count (above) ==="
-
-      - name: Per-file line count
-        run: |
-          echo "=== Per-file line count ==="
-          find . -type f -not -path './.git/*' -exec wc -l {} +
-          echo "=== End per-file ==="
-
-      - name: Count lines and save to file
-        run: |
-          echo "--- TOTAL LINES ---" > line-count.txt
-          find . -type f -not -path './.git/*' -exec cat {} + | wc -l >> line-count.txt
-          echo "" >> line-count.txt
-          echo "--- PER FILE ---" >> line-count.txt
-          find . -type f -not -path './.git/*' -exec wc -l {} + >> line-count.txt
-          echo "" >> line-count.txt
-          echo "--- FILE TYPES ---" >> line-count.txt
-          find . -type f -not -path './.git/*' | sed 's/.*\\.//' | sort | uniq -c | sort -rn >> line-count.txt
-
-      - name: Upload line count artifact
+          echo "=== Line Count ==="
+          find . -type f -not -path './.git/*' | while read -r file; do
+            wc -l "$file"
+          done > /tmp/line_counts.txt
+          echo "=== Summary ==="
+          cat /tmp/line_counts.txt
+          TOTAL=$(find . -type f -not -path './.git/*' -exec cat {} + | wc -l)
+          echo "Total lines: $TOTAL"
+          echo "$TOTAL" > total_lines.txt
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: line-count-result
-          path: line-count.txt
+          name: line-count-results
+          path: |
+            total_lines.txt
+            /tmp/line_counts.txt
