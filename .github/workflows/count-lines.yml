@@ -1,0 +1,29 @@
+
+name: Count Lines
+on:
+  workflow_dispatch:
+jobs:
+  count-lines:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Count lines of all files
+        id: count
+        run: |
+          echo "=== Line count per file ===" > line-count.txt
+          find . -type f -not -path './.git/*' -exec wc -l {} + | sort -rn >> line-count.txt
+          echo "" >> line-count.txt
+          echo "=== Total lines ===" >> line-count.txt
+          find . -type f -not -path './.git/*' -exec cat {} + | wc -l >> line-count.txt
+          echo "" >> line-count.txt
+          echo "=== Summary by file type ===" >> line-count.txt
+          find . -type f -not -path './.git/*' | sed 's/.*\\.//' | sort | uniq -c | sort -rn >> line-count.txt
+          cat line-count.txt
+
+      - name: Upload line count results
+        uses: actions/upload-artifact@v4
+        with:
+          name: line-count-results
+          path: line-count.txt
