@@ -1,30 +1,62 @@
 
-name: Clone and Count Lines
+name: Count Lines of Code
 on: workflow_dispatch
+
 jobs:
-  clone-and-count:
+  count-lines:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           repository: k0inwork/test
-          token: \${{ secrets.GITHUB_TOKEN }}
-      - name: Count all lines
+          fetch-depth: 0
+
+      - name: Count lines with wc
         run: |
-          echo "=== Line Count ==="
-          find . -type f -not -path './.git/*' | while read -r file; do
-            wc -l "$file"
-          done > /tmp/line_counts.txt
-          echo "=== Summary ==="
-          cat /tmp/line_counts.txt
-          TOTAL=$(find . -type f -not -path './.git/*' -exec cat {} + | wc -l)
-          echo "Total lines: $TOTAL"
-          echo "$TOTAL" > total_lines.txt
-      - name: Upload artifact
+          echo "=== Total line count (all files) ==="
+          git ls-files | xargs wc -l
+          echo ""
+          echo "=== GRAND TOTAL ==="
+          git ls-files | xargs wc -l | tail -1
+          echo ""
+          echo "=== File breakdown ==="
+          git ls-files | while read f; do
+            ext="\${f##*.}"
+            echo "$ext: $(wc -l < "$f") lines - $f"
+          done
+          echo ""
+          echo "=== Summary by extension ==="
+          git ls-files | awk -F. '{print $NF}' | sort | uniq -c | sort -rn
+
+      - name: Install cloc and count
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq cloc > /dev/null 2>&1
+          echo "=== CLOC output ==="
+          cloc --version
+          cloc . --not-match-d=node_modules
+          echo ""
+          echo "=== CLOC JSON output ==="
+          cloc . --not-match-d=node_modules --json > cloc_result.json
+          cat cloc_result.json
+
+      - name: Save results to file
+        run: |
+          echo "LINE_COUNT_RESULTS" > line_count_results.txt
+          echo "Repository: k0inwork/test" >> line_count_results.txt
+          echo "Date: $(date)" >> line_count_results.txt
+          echo "" >> line_count_results.txt
+          echo "=== Grand Total ===" >> line_count_results.txt
+          git ls-files | xargs wc -l | tail -1 >> line_count_results.txt
+          echo "" >> line_count_results.txt
+          echo "=== CLOC Summary ===" >> line_count_results.txt
+          cloc . --not-match-d=node_modules >> line_count_results.txt
+          cat line_count_results.txt
+
+      - name: Upload results artifact
         uses: actions/upload-artifact@v4
         with:
           name: line-count-results
           path: |
-            total_lines.txt
-            /tmp/line_counts.txt
+            line_count_results.txt
+            cloc_result.json
