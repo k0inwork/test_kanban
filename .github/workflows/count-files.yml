@@ -6,10 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        run: git clone https://github.com/k0inwork/test.git repo
-      - name: Count all files
+        run: |
+          git clone https://github.com/k0inwork/test.git repo
+      - name: Count files
         run: |
           cd repo
-          FILE_COUNT=$(find . -type f | wc -l)
+          FILE_COUNT=$(find . -not -path './.git/*' -type f | wc -l)
           echo "FILE_COUNT=$FILE_COUNT"
-          echo "Total file count: $FILE_COUNT"
+          echo "---FILE LIST---"
+          find . -not -path './.git/*' -type f
