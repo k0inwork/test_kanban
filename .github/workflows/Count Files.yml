@@ -5,17 +5,14 @@ jobs:
   count:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone repo
+      - name: Clone and count
         run: |
-          git clone https://github.com/k0inwork/test.git .
-      - name: Count all files
-        id: count
+          git clone https://github.com/k0inwork/test.git repo
+          COUNT=$(find repo -not -path '*/.git/*' -type f | wc -l)
+          echo "FILE_COUNT=$COUNT"
+          echo "FILE_COUNT=$COUNT" >> $GITHUB_ENV
+      - name: Output result
         run: |
-          FILE_COUNT=$(find . -not -path './.git/*' -type f | wc -l)
-          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
-          echo "===FILE_COUNT===$FILE_COUNT===END==="
-      - name: List all files
-        run: |
-          echo "===FILE_LIST_START==="
-          find . -not -path './.git/*' -type f
-          echo "===FILE_LIST_END==="
+          echo "===FILE_COUNT_RESULT==="
+          echo "$FILE_COUNT"
+          echo "===END==="
