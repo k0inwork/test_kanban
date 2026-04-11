@@ -1,0 +1,21 @@
+name: Count Files
+on:
+  workflow_dispatch: {}
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        run: |
+          git clone https://github.com/k0inwork/test.git .
+      - name: Count all files
+        id: count
+        run: |
+          FILE_COUNT=$(find . -not -path './.git/*' -type f | wc -l)
+          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
+          echo "===FILE_COUNT===$FILE_COUNT===END==="
+      - name: List all files
+        run: |
+          echo "===FILE_LIST_START==="
+          find . -not -path './.git/*' -type f
+          echo "===FILE_LIST_END==="
