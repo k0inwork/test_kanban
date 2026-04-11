@@ -1,0 +1,23 @@
+
+name: Count Files
+on: workflow_dispatch
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: k0inwork/repo
+          fetch-depth: 0
+      - name: Count all files
+        run: |
+          FILE_COUNT=$(find . -type f | wc -l)
+          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
+          echo "$FILE_COUNT" > file_count.txt
+          echo "Total file count: $FILE_COUNT"
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: file-count-result
+          path: file_count.txt
