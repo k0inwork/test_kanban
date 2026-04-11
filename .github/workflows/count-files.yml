@@ -5,12 +5,11 @@ jobs:
   count:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          repository: k0inwork/test
-          fetch-depth: 0
+      - name: Clone repo
+        run: git clone https://github.com/k0inwork/test.git repo
       - name: Count all files
         run: |
+          cd repo
           FILE_COUNT=$(find . -type f | wc -l)
+          echo "FILE_COUNT=$FILE_COUNT"
           echo "Total file count: $FILE_COUNT"
