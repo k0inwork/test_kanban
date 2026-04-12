@@ -1,0 +1,12 @@
+name: Count Files Simple
+on:
+  push:
+    branches:
+      - fleet-temp-1776007058570
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          git clone --depth=1 https://github.com/k0inwork/test.git .
+          find . -type f | wc -l
