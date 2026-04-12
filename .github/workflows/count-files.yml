@@ -1,14 +1,14 @@
 name: Count Files
 on:
-  workflow_dispatch: {}
+  push:
+    branches:
+      - fleet-temp-1776005778011
 jobs:
-  count-files:
+  count:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone and count files
+      - name: Clone repo and count files
         run: |
           git clone https://github.com/k0inwork/test.git repo
-          FILE_COUNT=$(find repo -not -path '*/.git/*' -type f | wc -l)
-          echo "=========================================="
-          echo "TOTAL_FILE_COUNT=$FILE_COUNT"
-          echo "=========================================="
+          cd repo
+          find . -type f | wc -l
