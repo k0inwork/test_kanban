@@ -1,0 +1,21 @@
+name: Count Files
+on:
+  push:
+    branches:
+      - fleet-temp-1776002509977
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: k0inwork/test
+      - name: Count files
+        run: |
+          COUNT=$(find . -type f | wc -l)
+          echo "FILE_COUNT=$COUNT" >> $GITHUB_ENV
+          echo "::notice::FILE_COUNT_RESULT=$COUNT"
+      - name: Output result
+        run: |
+          echo "Total file count: $FILE_COUNT"
