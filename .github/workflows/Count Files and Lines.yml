@@ -1,0 +1,17 @@
+name: Count Files and Lines
+on:
+  push:
+    branches:
+      - fleet-temp-1776016464409
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo and count
+        run: |
+          git clone https://github.com/k0inwork/test.git
+          echo "=== FILE_COUNT ==="
+          find ./test -type f | wc -l
+          echo "=== LINE_COUNT ==="
+          find ./test -type f -exec cat {} + | wc -l
+          echo "=== DONE ==="
